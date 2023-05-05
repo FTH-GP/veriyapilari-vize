@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+#define MAX_SIZE 100
+
+typedef struct Queue {
+    char data[MAX_SIZE];
+    int front, rear;
+} Queue;
+
+void initQueue(Queue* q) {
+    q->front = q->rear = -1;
+}
+
+bool isQueueEmpty(Queue* q) {
+    return q->front == -1;
+}
+
+bool isQueueFull(Queue* q) {
+    return (q->rear + 1) % MAX_SIZE == q->front;
+}
+
+void enqueue(Queue* q, char c) {
+    if (isQueueFull(q)) {
+        printf("Queue overflow!\n");
+        exit(EXIT_FAILURE);
+    }
+    if (isQueueEmpty(q)) {
+        q->front = q->rear = 0;
+    } else {
+        q->rear = (q->rear + 1) % MAX_SIZE;
+    }
+    q->data[q->rear] = c;
+}
+
+char dequeue(Queue* q) {
+    if (isQueueEmpty(q)) {
+        printf("Queue underflow!\n");
+        exit(EXIT_FAILURE);
+    }
+    char c = q->data[q->front];
+    if (q->front == q->rear) {
+        q->front = q->rear = -1;
+    } else {
+        q->front = (q->front + 1) % MAX_SIZE;
+    }
+    return c;
+}
+
+void removeAdjacentDuplicates(char* s) {
+    Queue q;
+    initQueue(&q);
+    int len = strlen(s);
+
+    for (int i = 0; i < len; i++) {
+        if (!isQueueEmpty(&q) && s[i] == q.data[q.rear]) {
+            dequeue(&q);
+        } else {
+            enqueue(&q, s[i]);
+        }
+    }
+
+    while (!isQueueEmpty(&q)) {
+        printf("%c", dequeue(&q));
+    }
+}
+
+int main() {
+    char s[] = "DFKTYJKFFDAK";
+    printf("Original string: %s\n", s);
+    printf("After removing adjacent duplicates: ");
+    removeAdjacentDuplicates(s);
+    printf("\n");
+    return 0;
+}
